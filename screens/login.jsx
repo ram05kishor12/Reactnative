@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 
@@ -17,12 +17,10 @@ const Login = ({ navigation }) => {
             (acc) => acc.username === username && acc.password === password
           );
           if (account) {
-            navigation.replace('Tabs');
+            await AsyncStorage.setItem('userLoggedIn', 'true');
+            navigation.navigate('Drawer');
           } else {
-            Toast.show({
-              type: 'error',
-              text1: 'Invalid Credentials',
-            });
+            Toast.show({ type: 'error', text1: 'Invalid Credentials' });
           }
         } else {
           Toast.show({
@@ -33,94 +31,61 @@ const Login = ({ navigation }) => {
       } catch (e) {
         Toast.show({
           type: 'error',
-          text1: 'Failed to fetch the data from storage',
+          text1: 'Failed to fetch data from storage',
         });
       }
     } else {
-      Toast.show({
-        type: 'error',
-        text1: 'Please fill all fields!',
-      });
+      Toast.show({ type: 'error', text1: 'Please fill all fields!' });
     }
   };
 
   return (
-    <View style={styles.body}>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Image style={styles.image} source={require('../assests/SS.png')} />
-        <Text style={styles.text}>Login Page</Text>
+    <View className="flex-1 bg-gray-100 justify-center items-center">
+
+      <Text className="text-3xl font-bold text-red-600 mb-6">Welcome Back</Text>
+      {/* <Image source={require('../assests/SS.png')} className="w-32 h-32 mb-8" /> */}
+
+      <View className="w-80 mb-4">
+        <Text className="text-md font-medium text-zinc-700 mb-2">Username</Text>
         <TextInput
-          style={styles.input}
-          onChangeText={setUsername}
-          placeholder="Username"
+          placeholder="Enter your username"
+          className="w-full h-14 bg-white border border-gray-300 rounded-lg px-4 shadow-sm"
           value={username}
+          onChangeText={setUsername}
         />
+      </View>
+
+      <View className="w-80 mb-6">
+        <Text className="text-md font-medium text-zinc-700 mb-2">Password</Text>
         <TextInput
-          style={styles.input}
-          onChangeText={setPassword}
-          placeholder="Password"
+          placeholder="Enter your password"
+          className="w-full h-14 bg-white border border-gray-300 rounded-lg px-4 shadow-sm"
           secureTextEntry
           value={password}
+          onChangeText={setPassword}
         />
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-        <Text style={styles.footerText}>
-          Don't have an account?{' '}
-          <Text style={{ color: 'blue' }} onPress={() => navigation.navigate('SignUp')}>
-            Sign Up
-          </Text>
-        </Text>
       </View>
+
+      <TouchableOpacity
+        className="w-72 h-14 bg-black rounded-lg justify-center items-center shadow-md mb-4"
+        onPress={handleLogin}
+      >
+        <Text className="text-white text-lg font-bold">Login</Text>
+      </TouchableOpacity>
+
+      <Text className="text-sm text-gray-600">
+        Don't have an account?{' '}
+        <Text
+          className="text-blue-600 font-bold"
+          onPress={() => navigation.navigate('SignUp')}
+        >
+          Sign Up
+        </Text>
+      </Text>
+
       <Toast />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  body: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: 'red',
-    marginBottom: 20,
-  },
-  image: {
-    width: 150,
-    height: 150,
-    marginBottom: 20,
-  },
-  input: {
-    width: 300,
-    height: 50,
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 20,
-  },
-  button: {
-    width: 300,
-    height: 50,
-    backgroundColor: 'blue',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  footerText: {
-    fontSize: 16,
-    color: 'black',
-    marginTop: 10,
-  },
-});
 
 export default Login;
