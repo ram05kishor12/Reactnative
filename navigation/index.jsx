@@ -14,6 +14,10 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'rea
 import TabNavigator from './tab';
 import { CustomDrawerContent } from './drawer';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Page1 from '../screens/page1';
+import Page2 from '../screens/page2';
+import Page3 from '../screens/page3';
+import Counter, { CounterContext } from '../screens/Counter';
 
 const Stack = createNativeStackNavigator();
 // const Tab = createBottomTabNavigator();
@@ -137,6 +141,8 @@ export default function Navigation() {
   }
 
   return (
+    <Counter>
+
     <Stack.Navigator initialRouteName={initialRoute}>
       <Stack.Screen
         name="Login"
@@ -150,7 +156,11 @@ export default function Navigation() {
         options={{ headerShown: false }}
       />
       <Stack.Screen name="Screen4" component={Screen4} />
+      <Stack.Screen name="Page1" component={Page1} />
+      <Stack.Screen name="Page2" component={Page2} />
+      <Stack.Screen name="Page3" component={Page3} />
     </Stack.Navigator>
+    </Counter>
   );
 }
 

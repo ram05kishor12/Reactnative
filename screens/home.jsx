@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, TextInput, Image, TouchableOpacity, ScrollView } from 'react-native';
-
+import { View, Text, TextInput, Image, TouchableOpacity, ScrollView, Button } from 'react-native';
+import Dropdown from '../components/customdropdown';
 const Home = ({ navigation }) => {
   return (
     <ScrollView className="bg-gray-100 flex-1">
@@ -55,6 +55,8 @@ const Home = ({ navigation }) => {
         </View>
       </View>
 
+        <Dropdown/>
+      <Button title='Go to Page 1' onPress={() => navigation.navigate('Page1')} />
       <View className="p-4">
         <Text className="font-bold text-lg mb-2">Featured</Text>
         <ScrollView horizontal className="flex-row">
