@@ -1,18 +1,22 @@
-// firebaseConfig.js
-import { initializeApp } from '@react-native-firebase/app';
+// Import the functions you need from the SDKs you need
+import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import { initializeApp } from '@react-native-firebase/app';
 
-
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: 'AIzaSyBJ_m35kQ_zp21nz5sFgR-AP_4f1EJyBlY',
-//   authDomain: 'YOUR_AUTH_DOMAIN',
-  projectId: 'test-app-5c40f',
-  storageBucket: 'test-app-5c40f.firebasestorage.app',
-//   messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-  appId: '1:640351118069:android:fb53650226e1bbead05bbc',
+  apiKey: "AIzaSyCTEmocsaMFz-aYc_R-h_2Op0oEt84I68Q",
+  authDomain: "test-app-5c40f.firebaseapp.com",
+  projectId: "test-app-5c40f",
+  storageBucket: "test-app-5c40f.firebasestorage.app",
+  messagingSenderId: "640351118069",
+  appId: "1:640351118069:web:47787320016e9cbfd05bbc"
 };
 
+// Initialize Firebase
 initializeApp(firebaseConfig);
 
-export { firestore };
+// Get Firestore instance
+const db = firestore();
 
+export { auth, db };

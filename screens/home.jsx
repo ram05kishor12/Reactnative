@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, Image, TouchableOpacity, ScrollView, Button } from 'react-native';
+import  Screen4 from './screen4';
 import Dropdown from '../components/customdropdown';
 const Home = ({ navigation }) => {
   return (
@@ -22,6 +23,12 @@ const Home = ({ navigation }) => {
             <Text className="font-bold text-lg">Claim your free now!</Text>
             <TouchableOpacity className="bg-black rounded-lg px-4 py-3 mt-3 ">
               <Text className="text-white font-bold">Go now</Text>
+            </TouchableOpacity>
+            <TouchableOpacity className="bg-black rounded-lg px-4 py-3 mt-3 " onPress={() => navigation.navigate('Screen4')}>
+              <Text className="text-white font-bold">Go to page 4</Text>
+            </TouchableOpacity>
+            <TouchableOpacity className="bg-black rounded-lg px-4 py-3 mt-3 " onPress={() => navigation.navigate('page5')}>
+              <Text className="text-white font-bold">Go to page 4</Text>
             </TouchableOpacity>
           </View>
           <Image

@@ -18,6 +18,10 @@ import Page1 from '../screens/page1';
 import Page2 from '../screens/page2';
 import Page3 from '../screens/page3';
 import Counter, { CounterContext } from '../screens/Counter';
+import Signupfirebase from '../screens/signupfirebase';
+import Loginfirebase from '../screens/loginfirebase';
+import Chatscreen from '../screens/chatscreen';
+import chatlist from '../screens/chatlist';
 
 const Stack = createNativeStackNavigator();
 // const Tab = createBottomTabNavigator();
@@ -146,10 +150,10 @@ export default function Navigation() {
     <Stack.Navigator initialRouteName={initialRoute}>
       <Stack.Screen
         name="Login"
-        component={Login}
+        component={Loginfirebase}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="SignUp" component={SignUp} />
+      <Stack.Screen name="SignUp" component={Signupfirebase} />
       <Stack.Screen
         name="Drawer"
         component={DrawerNavigator}
@@ -159,6 +163,8 @@ export default function Navigation() {
       <Stack.Screen name="Page1" component={Page1} />
       <Stack.Screen name="Page2" component={Page2} />
       <Stack.Screen name="Page3" component={Page3} />
+      <Stack.Screen name ="chat" component={Chatscreen} options={{ headerShown : false }} />
+      <Stack.Screen name ="chatlist" component={chatlist} options={{ headerShown : false }} />
     </Stack.Navigator>
     </Counter>
   );
