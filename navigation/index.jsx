@@ -159,7 +159,7 @@ export default function Navigation() {
         component={DrawerNavigator}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="Screen4" component={Screen4} />
+      <Stack.Screen name="Screen4" component={DrawerNavigator} />
       <Stack.Screen name="Page1" component={Page1} />
       <Stack.Screen name="Page2" component={Page2} />
       <Stack.Screen name="Page3" component={Page3} />
