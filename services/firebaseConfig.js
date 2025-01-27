@@ -2,6 +2,7 @@
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { initializeApp } from '@react-native-firebase/app';
+import { getStorage } from '@react-native-firebase/storage';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -14,9 +15,9 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-initializeApp(firebaseConfig);
-
+const app = initializeApp(firebaseConfig);
 // Get Firestore instance
 const db = firestore();
+const storage = getStorage(app);
 
-export { auth, db };
+export { auth, db , storage};

@@ -14,135 +14,137 @@ import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 export default function ChatListScreen({ navigation }) {
-  const [chatList, setChatList] = useState([]);
-  const [filteredChats, setFilteredChats] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const [chatData, setChatData] = useState({});
 
   // Set current logged-in user
   useEffect(() => {
     const unsubscribe = auth().onAuthStateChanged((user) => {
       setCurrentUser(user);
     });
-
     return unsubscribe;
   }, []);
 
-  // Fetch chats and handle "self-messages"
+  // Fetch all users and their last messages
   useEffect(() => {
     if (!currentUser) return;
 
-    const fetchChatList = async () => {
+    const fetchUsersAndChats = async () => {
       try {
-        const unsubscribe = firestore()
+        // Listen for all users except current user
+        const usersUnsubscribe = firestore()
+          .collection('users')
+          .where('userId', '!=', currentUser.uid)
+          .onSnapshot(async (querySnapshot) => {
+            const usersList = [];
+            querySnapshot.forEach((doc) => {
+              const userData = doc.data();
+              usersList.push({
+                id: userData.userId, // Using userId from the document
+                name: userData.name,
+                email: userData.email,
+              });
+            });
+            // console.log('Fetched users:', usersList); // Debug log
+            setUsers(usersList);
+            setFilteredUsers(usersList);
+          });
+
+        // Listen for all chats involving current user
+        const chatsUnsubscribe = firestore()
           .collection('chats')
           .where('users', 'array-contains', currentUser.uid)
           .onSnapshot(async (querySnapshot) => {
-            const chats = [];
+            const chatInfo = {};
+
             for (const doc of querySnapshot.docs) {
               const chatData = doc.data();
-              const messagesRef = firestore()
+              const otherUserId = chatData.users.find(id => id !== currentUser.uid);
+
+              // Get last message
+              const lastMessageSnap = await firestore()
                 .collection('chats')
                 .doc(doc.id)
                 .collection('messages')
                 .orderBy('createdAt', 'desc')
-                .limit(1);
-
-              const lastMessageSnapshot = await messagesRef.get();
-              const lastMessage = lastMessageSnapshot.docs[0]?.data() || {};
-
-              // Find the other user in the chat
-              const otherUserId = chatData.users.find(
-                (id) => id !== currentUser.uid
-              );
-
-              // If the chat is with self
-              if (!otherUserId || otherUserId === currentUser.uid) {
-                chats.push({
-                  id: doc.id,
-                  ...chatData,
-                  lastMessage: lastMessage.text || 'No messages yet',
-                  lastMessageAt: lastMessage.createdAt?.toDate() || new Date(),
-                  otherUser: {
-                    id: currentUser.uid,
-                    name: 'You',
-                  },
-                });
-                continue;
-              }
-
-              // Fetch the other user's data
-              const otherUserDoc = await firestore()
-                .collection('users')
-                .doc(otherUserId)
+                .limit(1)
                 .get();
 
-              const otherUserName = otherUserDoc.data()?.name || 'Unknown User';
-
-              chats.push({
-                id: doc.id,
-                ...chatData,
-                lastMessage: lastMessage.text || 'No messages yet',
-                lastMessageAt: lastMessage.createdAt?.toDate() || new Date(),
-                otherUser: {
-                  id: otherUserId,
-                  name: otherUserName,
-                },
-              });
+              const lastMessage = lastMessageSnap.docs[0]?.data();
+              
+              chatInfo[otherUserId] = {
+                chatId: doc.id,
+                lastMessage: lastMessage?.text || 'No messages yet',
+                lastMessageAt: lastMessage?.createdAt?.toDate() || null,
+              };
             }
-
-            setChatList(chats);
-            setFilteredChats(chats); // Initialize filteredChats with all chats
+            
+            // console.log('Fetched chat data:', chatInfo); // Debug log
+            setChatData(chatInfo);
           });
 
-        return () => unsubscribe();
+        return () => {
+          usersUnsubscribe();
+          chatsUnsubscribe();
+        };
       } catch (error) {
-        console.error('Error fetching chat list:', error);
-        Alert.alert('Error', 'Failed to fetch chat list.');
+        console.error('Error fetching users and chats:', error);
+        Alert.alert('Error', 'Failed to fetch users and chats.');
       }
     };
 
-    fetchChatList();
+    fetchUsersAndChats();
   }, [currentUser]);
 
-  // Filter chats based on search term
+  // Filter users based on search term
   useEffect(() => {
     if (!searchTerm) {
-      setFilteredChats(chatList);
+      setFilteredUsers(users);
     } else {
-      const filtered = chatList.filter((chat) =>
-        chat.otherUser.name.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = users.filter((user) =>
+        user.name?.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredChats(filtered);
+      setFilteredUsers(filtered);
     }
-  }, [searchTerm, chatList]);
+  }, [searchTerm, users]);
 
-  const renderChatItem = ({ item }) => {
-    const { id, name } = item.otherUser;
+  const renderUserItem = ({ item }) => {
+    const chatInfo = chatData[item.id] || {};
+    const hasChat = !!chatInfo.chatId;
 
     return (
       <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('chat', { user: { id, name } })
-        }
+        onPress={() => navigation.navigate('chat', { 
+          user: { 
+            id: item.id, // This is the userId from Firestore
+            name: item.name,
+          }
+        })}
         className="flex-row items-center px-4 py-3 border-b border-gray-200"
       >
         <Image
-          source={require('../assests/SS.png')} // Replace with a dynamic profile image
+          source={require('../assests/SS.png')}
           className="w-10 h-10 rounded-full"
         />
         <View className="ml-4 flex-1">
-          <Text className="text-lg font-bold">{name}</Text>
-          <Text className="text-gray-500 text-sm">{item.lastMessage}</Text>
-        </View>
-        <View className="ml-4 items-end">
-          <Text className="text-gray-400 text-xs">
-            {item.lastMessageAt.toLocaleDateString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
+          <Text className="text-lg font-bold">{item.name}</Text>
+          <Text className="text-gray-500 text-sm">
+            {hasChat ? chatInfo.lastMessage : 'Start a new chat'}
           </Text>
         </View>
+        {hasChat && chatInfo.lastMessageAt && (
+          <View className="ml-4 items-end">
+            <Text className="text-gray-400 text-xs">
+              {chatInfo.lastMessageAt.toLocaleDateString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </Text>
+          </View>
+        )}
         <Icon name="chevron-forward" size={24} color="#000" className="ml-auto" />
       </TouchableOpacity>
     );
@@ -161,7 +163,7 @@ export default function ChatListScreen({ navigation }) {
       {/* Search Bar */}
       <View className="px-4 py-2">
         <TextInput
-          placeholder="Search chats..."
+          placeholder="Search users..."
           value={searchTerm}
           onChangeText={setSearchTerm}
           className="border border-gray-300 rounded-lg px-4 py-2"
@@ -169,13 +171,13 @@ export default function ChatListScreen({ navigation }) {
       </View>
 
       <FlatList
-        data={filteredChats} // Use filteredChats instead of chatList
+        data={filteredUsers}
         keyExtractor={(item) => item.id}
-        renderItem={renderChatItem}
+        renderItem={renderUserItem}
         contentContainerStyle={{ paddingBottom: 20 }}
         ListEmptyComponent={
-          <View className="flex-1 justify-center items-center">
-            <Text className="text-gray-500 text-lg">No chats available.</Text>
+          <View className="flex-1 justify-center items-center pt-10">
+            <Text className="text-gray-500 text-lg">No users found.</Text>
           </View>
         }
       />
