@@ -373,10 +373,10 @@ const ChatScreen = ({ route, navigation }) => {
             `}
           >
             <Icon 
-              name="send" 
-              size={20} 
-              color="white" 
-              style={{ transform: [{ rotate: '45deg' }] }} 
+              name="send"
+              size={20}
+              color="white"
+              style={{ transform: [{ rotate: '45deg' }] }}
             />
           </TouchableOpacity>
         </View>
